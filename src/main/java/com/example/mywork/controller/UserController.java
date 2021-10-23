@@ -17,6 +17,6 @@ public class UserController {
 
     @RequestMapping("getUser/{id}")
     public String GetUser(@PathVariable String id) {
-        return userService.Sel(id).toString() + "新增的111";
+        return userService.Sel(id).toString() + "qqqqqqqqq";
     }
 }
