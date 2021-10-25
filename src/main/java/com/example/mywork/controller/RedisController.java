@@ -78,7 +78,7 @@ public class RedisController {
     }
 
 
-    @RequestMapping(value = "/hmSet/{key}/{hashKey}")
+    @RequestMapping(value = "/hmGet/{key}/{hashKey}")
     public String hmGet(@PathVariable(value = "key") String key, @PathVariable(value = "hashKey") String hashKey) {
         try {
             //查询缓存中是否存在
