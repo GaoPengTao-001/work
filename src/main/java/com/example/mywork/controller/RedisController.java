@@ -17,7 +17,7 @@ import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 @RestController
-@RequestMapping("/redis")
+@RequestMapping("/api/redis")
 public class RedisController {
 
     public static final Logger log = LoggerFactory.getLogger(RedisController.class);

@@ -15,7 +15,7 @@ import javax.annotation.Resource;
 import java.util.List;
 
 @RestController
-@RequestMapping("/function")
+@RequestMapping("/api/function")
 public class FunctionController {
 
     @Resource
@@ -26,7 +26,7 @@ public class FunctionController {
      */
     private static final Logger log = LoggerFactory.getLogger(FunctionController.class);
 
-    @RequestMapping("getFun")
+    @RequestMapping("/getFun")
     @ResponseBody
     public List<Function> getFun() {
         List<Function> functionList = null;
