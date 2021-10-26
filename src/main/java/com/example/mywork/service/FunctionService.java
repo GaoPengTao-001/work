@@ -22,12 +22,14 @@ public class FunctionService {
     private static final Logger log = LoggerFactory.getLogger(FunctionService.class);
 
     public List<Function> selectFun() {
+        List<Function> functionList = null;
         try {
-            return functionMapper.selectFunction();
+            functionList = functionMapper.selectFunction();
+            return functionList;
         } catch (Exception e) {
             log.error("FunctionService.selectFun异常", e);
         }
-        return null;
+        return functionList;
     }
 
 }
