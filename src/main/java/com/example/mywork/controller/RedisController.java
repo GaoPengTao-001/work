@@ -8,7 +8,10 @@ import com.example.mywork.service.UserService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.annotation.Resource;
@@ -28,33 +31,36 @@ public class RedisController {
     @Resource
     RedisService redisService;
 
-    @RequestMapping(value = "/hello/{id}")
-    public String hello(@PathVariable(value = "id") String id) {
+    @PostMapping(value = "/saveStr")
+    public String saveStr(@RequestBody Map<String, String> map) {
         try {
-            //查询缓存中是否存在
-            boolean hasKey = redisService.exists(id);
-            String str = "";
-            if (hasKey) {
-                //获取缓存
-                Object object = redisService.get(id);
-                log.info("从缓存获取的数据" + object);
-                str = object.toString();
+            boolean isSave = redisService.set(map.get("key"), map.get("value"));
+            if (isSave) {
+                return map.toString() + ",保存成功";
             } else {
-                //从数据库中获取信息
-                log.info("从数据库中获取数据");
-                User user = userService.Sel(id);
-                //数据插入缓存（set中的参数含义：key值，user对象，缓存存在时间10（long类型），时间单位）
-                str = JSON.toJSONString(user);
-                redisService.set(id, str, 10L, TimeUnit.MINUTES);
-                log.info("数据插入缓存" + str);
+                return map.toString() + ",保存失败";
             }
-            return str;
         } catch (Exception e) {
-            log.error("RedisController.hello 异常", e);
+            log.error("RedisController.saveStr 异常", e);
         }
         return null;
     }
 
+    @PostMapping(value = "/getStr")
+    public String getStr(@RequestBody Map<String, String> map) {
+        try {
+            String key = map.get("key");
+            boolean hasKey = redisService.exists(key);
+            if (hasKey) {
+                return redisService.get(key).toString();
+            } else {
+                return key + "没有找到";
+            }
+        } catch (Exception e) {
+            log.error("RedisController.getStr 异常", e);
+        }
+        return null;
+    }
 
     @RequestMapping(value = "/hmSet/{id}")
     public String hmSet(@PathVariable(value = "id") String id) {
