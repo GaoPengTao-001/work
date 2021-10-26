@@ -15,7 +15,7 @@ import javax.annotation.Resource;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/function")
+@RequestMapping("/function")
 public class FunctionController {
 
     @Resource

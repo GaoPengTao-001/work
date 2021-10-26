@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.RestController;
 import javax.annotation.Resource;
 
 @RestController
-@RequestMapping("/api/testBoot")
+@RequestMapping("/testBoot")
 public class UserController {
 
     @Resource
