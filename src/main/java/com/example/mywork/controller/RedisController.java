@@ -2,31 +2,25 @@ package com.example.mywork.controller;
 
 
 import com.alibaba.fastjson.JSON;
-import com.example.mywork.entity.User;
 import com.example.mywork.service.RedisService;
 import com.example.mywork.service.UserService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.util.CollectionUtils;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.annotation.Resource;
-import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
-import java.util.concurrent.TimeUnit;
 
 @RestController
 @RequestMapping("/redis")
 public class RedisController {
 
     public static final Logger log = LoggerFactory.getLogger(RedisController.class);
-
-    @Resource
-    private UserService userService;
 
     @Resource
     RedisService redisService;
@@ -62,40 +56,35 @@ public class RedisController {
         return null;
     }
 
-    @RequestMapping(value = "/hmSet/{id}")
-    public String hmSet(@PathVariable(value = "id") String id) {
+    @PostMapping(value = "/hmSet")
+    public String hmSet(@RequestBody Map<String, Object> map) {
         try {
-            String hmKey = "hm" + id;
-            //从数据库中获取信息
-            log.info("从数据库中获取数据");
-            User user = userService.Sel(id);
-            String str = JSON.toJSONString(user);
-            //数据插入缓存（set中的参数含义：key值，user对象，缓存存在时间10（long类型），时间单位）
-            Map<String, String> map = JSON.parseObject(str, HashMap.class);
-            for (Map.Entry<String, String> entrySet : map.entrySet()) {
-                redisService.hmSet(hmKey, entrySet.getKey(), String.valueOf(entrySet.getValue()));
+            String key = (String) map.get("key");
+            Map<String, String> value = (Map<String, String>) map.get("value");
+            for (Map.Entry<String, String> entrySet : value.entrySet()) {
+                redisService.hmSet(key, entrySet.getKey(), String.valueOf(entrySet.getValue()));
             }
-            log.info("数据插入缓存" + str);
-            return "保存hash成功，key=" + hmKey;
+            log.info("数据插入缓存" + map.toString());
+            return "保存hash成功，data:" + JSON.toJSONString(map);
         } catch (Exception e) {
             log.error("RedisController.hmSet 异常", e);
         }
         return null;
     }
 
-
-    @RequestMapping(value = "/hmGet/{key}/{hashKey}")
-    public String hmGet(@PathVariable(value = "key") String key, @PathVariable(value = "hashKey") String hashKey) {
+    @PostMapping(value = "/hmGet")
+    public String hmGet(@RequestBody Map<String, String> map) {
         try {
+            String key = map.get("key");
+            String colName = map.get("colName");
             //查询缓存中是否存在
             boolean hasKey = redisService.exists(key);
-
             String str = "";
             if (hasKey) {
                 //获取缓存
-                Object object = redisService.hmGet(key, hashKey);
+                Object object = redisService.hmGet(key, colName);
                 log.info("从缓存获取的数据" + object);
-                str = object.toString();
+                str = JSON.toJSONString(object);
             } else {
                 str = "没有找到hash，key=" + key;
             }
@@ -106,30 +95,35 @@ public class RedisController {
         return null;
     }
 
-    @RequestMapping(value = "/lSet/{key}/{value}")
-    public String lSet(@PathVariable(value = "key") String key, @PathVariable(value = "value") String value) {
+    @PostMapping(value = "/lSet")
+    public String lSet(@RequestBody Map<String, Object> map) {
         try {
-            String lKey = "l" + key;
-            redisService.lPush(lKey, value);
-            return "保存list成功，key=" + lKey;
+            String key = (String) map.get("key");
+            List<String> value = (List<String>) map.get("value");
+            if (!CollectionUtils.isEmpty(value)) {
+                for (String val : value) {
+                    redisService.lPush(key, val);
+                }
+            }
+            return "保存list成功，key=" + key;
         } catch (Exception e) {
             log.error("RedisController.lSet 异常", e);
         }
         return null;
     }
 
-    @RequestMapping(value = "/lGet/{key}")
-    public String lGet(@PathVariable(value = "key") String key) {
+    @PostMapping(value = "/lGet")
+    public String lGet(@RequestBody Map<String, String> map) {
         try {
+            String key = map.get("key");
             //查询缓存中是否存在
             boolean hasKey = redisService.exists(key);
-
             String str = "";
             if (hasKey) {
                 //获取缓存
                 Object object = redisService.lRange(key, 0, 100);
                 log.info("从缓存获取的数据" + object);
-                str = object.toString();
+                str = JSON.toJSONString(object);
             } else {
                 str = "没有找到list，key=" + key;
             }
@@ -140,30 +134,33 @@ public class RedisController {
         return null;
     }
 
-    @RequestMapping(value = "/sAdd/{key}/{value}")
-    public String sAdd(@PathVariable(value = "key") String key, @PathVariable(value = "value") String value) {
+    @PostMapping(value = "/sSet")
+    public String sSet(@RequestBody Map<String, Object> map) {
         try {
-            String lKey = "s" + key;
-            redisService.add(lKey, value);
-            return "保存set成功，key=" + lKey;
+            String key = (String) map.get("key");
+            List<String> value = (List<String>) map.get("value");
+            if (!CollectionUtils.isEmpty(value)) {
+                value.stream().forEach(val -> redisService.add(key, val));
+            }
+            return "保存set成功，key=" + key;
         } catch (Exception e) {
             log.error("RedisController.sAdd 异常", e);
         }
         return null;
     }
 
-    @RequestMapping(value = "/sGet/{key}")
-    public String sGet(@PathVariable(value = "key") String key) {
+    @PostMapping(value = "/sGet")
+    public String sGet(@RequestBody Map<String, String> map) {
         try {
+            String key = map.get("key");
             //查询缓存中是否存在
             boolean hasKey = redisService.exists(key);
-
             String str = "";
             if (hasKey) {
                 //获取缓存
                 Object object = redisService.setMembers(key);
                 log.info("从缓存获取的数据" + object);
-                str = object.toString();
+                str = JSON.toJSONString(object);
             } else {
                 str = "没有找到set，key=" + key;
             }
@@ -174,34 +171,39 @@ public class RedisController {
         return null;
     }
 
-    @RequestMapping(value = "/zsAdd/{key}/{value}/{score}")
-    public String zsAdd(@PathVariable(value = "key") String key,
-                        @PathVariable(value = "value") String value,
-                        @PathVariable(value = "score") double score) {
+    @PostMapping(value = "/zsAdd")
+    public String zsAdd(@RequestBody Map<String, Object> map) {
         try {
-            String lKey = "zs" + key;
-            redisService.zAdd(lKey, value, score);
-            return "保存zset成功，key=" + lKey;
+            String key = (String) map.get("key");
+            List<Map> val = (List<Map>) map.get("value");
+            if (!CollectionUtils.isEmpty(val)) {
+                val.stream().forEach(item -> {
+                    String value = (String) item.get("value");
+                    double score = Double.valueOf((String) item.get("score"));
+                    redisService.zAdd(key, value, score);
+                });
+            }
+            return "保存zset成功，key=" + key;
         } catch (Exception e) {
             log.error("RedisController.zsAdd 异常", e);
         }
         return null;
     }
 
-    @RequestMapping(value = "/zsGet/{key}/{score}/{score1}")
-    public String zsGet(@PathVariable(value = "key") String key,
-                        @PathVariable(value = "score") double score,
-                        @PathVariable(value = "score1") double score1) {
+    @PostMapping(value = "/zsGet")
+    public String zsGet(@RequestBody Map<String, String> map) {
         try {
+            String key = map.get("key");
+            double score1 = Double.valueOf(map.get("score1"));
+            double score2 = Double.valueOf(map.get("score2"));
             //查询缓存中是否存在
             boolean hasKey = redisService.exists(key);
-
             String str = "";
             if (hasKey) {
                 //获取缓存
-                Object object = redisService.rangeByScore(key, score, score1);
+                Object object = redisService.rangeByScore(key, score1, score2);
                 log.info("从缓存获取的数据" + object);
-                str = object.toString();
+                str = JSON.toJSONString(object);
             } else {
                 str = "没有找到zset，key=" + key;
             }
@@ -212,10 +214,11 @@ public class RedisController {
         return null;
     }
 
-    @RequestMapping(value = "/expire/{key}/{mill}")
-    public String expire(@PathVariable(value = "key") String key,
-                         @PathVariable(value = "mill") long mill) {
+    @PostMapping(value = "/expire")
+    public String expire(@RequestBody Map<String, String> map) {
         try {
+            String key = map.get("key");
+            Integer mill = Integer.valueOf(map.get("mill"));
             //查询缓存中是否存在
             boolean hasKey = redisService.exists(key);
             if (hasKey) {

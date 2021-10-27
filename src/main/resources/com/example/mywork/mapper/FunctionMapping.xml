@@ -9,6 +9,7 @@
             <id column="itemId" property="id" javaType="java.lang.Integer"></id>
             <result column="itemName" property="name" javaType="java.lang.String"></result>
             <result column="itemParentId" property="parentId" javaType="java.lang.String"></result>
+            <result column="path" property="path" javaType="java.lang.String"></result>
         </collection>
     </resultMap>
 
@@ -18,7 +19,8 @@
             functionParent.`name`,
             functionItem.id itemId,
             functionItem.`name` itemName,
-            functionItem.parentId itemParentId
+            functionItem.parentId itemParentId,
+            functionItem.path path
         FROM
             FUNCTION functionParent
         JOIN FUNCTION functionItem ON functionItem.parentId = functionParent.id

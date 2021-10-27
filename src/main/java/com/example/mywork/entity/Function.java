@@ -9,6 +9,8 @@ public class Function {
 
     private String parentId;
 
+    private String path;
+
     private List<Function> functionList;
 
     public Integer getId() {
@@ -33,6 +35,14 @@ public class Function {
 
     public void setParentId(String parentId) {
         this.parentId = parentId;
+    }
+
+    public String getPath() {
+        return path;
+    }
+
+    public void setPath(String path) {
+        this.path = path;
     }
 
     public List<Function> getFunctionList() {
