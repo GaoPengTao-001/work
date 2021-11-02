@@ -9,7 +9,7 @@ spring:
     driver-class-name: com.mysql.cj.jdbc.Driver
   redis:
     #    ip
-    host: 192.168.31.55
+    host: 47.100.82.183
     #    端口
     port: 6379
     #    密码，默认空
