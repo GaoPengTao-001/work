@@ -5,11 +5,11 @@ spring:
   datasource:
     username: root
     password: 123456
-    url: jdbc:mysql://47.100.82.183:3306/work?useUnicode=true&characterEncoding=utf-8&useSSL=true&serverTimezone=UTC
+    url: jdbc:mysql://192.168.31.55:3306/work?useUnicode=true&characterEncoding=utf-8&useSSL=true&serverTimezone=UTC
     driver-class-name: com.mysql.cj.jdbc.Driver
   redis:
     #    ip
-    host: 47.100.82.183
+    host: 192.168.31.55
     #    端口
     port: 6379
     #    密码，默认空
@@ -26,6 +26,13 @@ spring:
         min-idle: 0
     #连接超时时间（毫秒）
     timeout: 30000
+
+  #配置rabbitMq 服务器
+  rabbitmq:
+    host: 192.168.31.55
+    port: 5672
+    username: gaopengtao
+    password: gaopengtao
 
 mybatis:
   mapper-locations: classpath:com/example/mywork/mapper/*.xml
