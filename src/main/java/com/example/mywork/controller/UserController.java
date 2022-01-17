@@ -19,4 +19,12 @@ public class UserController {
     public String GetUser(@PathVariable String id) {
         return userService.Sel(id).toString();
     }
+
+    @RequestMapping("redirect/{jsession}")
+    public String redirect(@PathVariable String jsession) {
+        System.out.println(jsession);
+
+//        return "redirect:";
+        return jsession;
+    }
 }

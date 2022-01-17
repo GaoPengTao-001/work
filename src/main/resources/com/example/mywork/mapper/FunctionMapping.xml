@@ -22,8 +22,8 @@
             functionItem.parentId itemParentId,
             functionItem.path path
         FROM
-            FUNCTION functionParent
-        JOIN FUNCTION functionItem ON functionItem.parentId = functionParent.id
+            function functionParent
+        JOIN function functionItem ON functionItem.parentId = functionParent.id
         AND functionItem.parentId IS NOT NULL
     </select>
 
